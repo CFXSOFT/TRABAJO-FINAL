@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% from "_iconos.html" import icono %}
+{% block titulo %}Evaluar estudiante{% endblock %}
+{% block contenido %}
+<div class="page-head">
+  <div class="eyebrow rise">Formulario de predicción</div>
+  <h1 class="rise" style="--d:.1;font-size:clamp(1.9rem,7vw,2.8rem)">Evaluar a un estudiante</h1>
+  <p class="lead rise" style="--d:.2">Completa los datos. Los campos marcados como <em>opcional</em> pueden quedar vacíos si no se conocen: el sistema los completa con valores típicos.</p>
+  <div class="examples rise" style="--d:.3">
+    <span>Probar con un ejemplo:</span>
+    <a class="mini" href="/predecir?ejemplo=bajo">Perfil estable</a>
+    <a class="mini" href="/predecir?ejemplo=alto">Perfil con señales de riesgo</a>
+  </div>
+</div>
+
+{% if errores %}<div class="alert" role="alert">Revisa {{ errores|length }} campo{{ 's' if errores|length > 1 }} marcado{{ 's' if errores|length > 1 }} antes de continuar.</div>{% endif %}
+
+<form method="post" action="/predecir" novalidate>
+  {% for sec in secciones %}
+  <fieldset class="card form-sec reveal">
+    <legend><span class="n">{{ loop.index }}</span>{{ sec.titulo }}</legend>
+    <div class="fields">
+      {% for c in sec.campos %}
+      {% set v = valores.get(c.name, '') %}
+      <div class="field {{ 'err' if errores.get(c.name) }} {{ 'wide' if c.tipo == 'pills' and c.opciones|length > 2 }}">
+        {% if c.tipo == 'pills' %}
+          <span class="lbl" id="l-{{ c.name }}">{{ c.label }}{% if c.opcional %} <span class="opt">(opcional)</span>{% endif %}</span>
+          <div class="pills" role="radiogroup" aria-labelledby="l-{{ c.name }}">
+            {% for o in c.opciones %}
+            <label class="pill"><input type="radio" name="{{ c.name }}" value="{{ o }}" {{ 'checked' if v == o }}><span>{{ o }}</span></label>
+            {% endfor %}
+          </div>
+        {% elif c.tipo == 'select' %}
+          <label for="{{ c.name }}">{{ c.label }}</label>
+          <select id="{{ c.name }}" name="{{ c.name }}">
+            <option value="" {{ 'selected' if not v }} disabled>Selecciona…</option>
+            {% for o in c.opciones %}<option value="{{ o }}" {{ 'selected' if v == o }}>{{ o }}</option>{% endfor %}
+          </select>
+        {% else %}
+          <label for="{{ c.name }}">{{ c.label }}{% if c.opcional %} <span class="opt">(opcional)</span>{% endif %}</label>
+          <input type="number" id="{{ c.name }}" name="{{ c.name }}" inputmode="{{ 'decimal' if c.step < 1 else 'numeric' }}"
+                 min="{{ c.min }}" max="{{ c.max }}" step="{{ c.step }}" value="{{ v }}" placeholder="{{ c.min }} – {{ c.max }}">
+        {% endif %}
+        {% if c.ayuda and not errores.get(c.name) %}<p class="ayuda">{{ c.ayuda }}</p>{% endif %}
+        {% if errores.get(c.name) %}<p class="msg" role="alert">{{ errores[c.name] }}</p>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </fieldset>
+  {% endfor %}
+
+  <div class="submit-bar">
+    <button class="btn btn-primary" type="submit">Calcular riesgo {{ icono('arrow') }}</button>
+  </div>
+</form>
+{% endblock %}

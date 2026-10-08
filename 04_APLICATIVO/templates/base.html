@@ -1,0 +1,45 @@
+{% from "_iconos.html" import icono %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1A56FF">
+  <meta name="description" content="Herramienta de apoyo para tutores: estima el riesgo de deserción estudiantil con Machine Learning.">
+  <title>{% block titulo %}Riesgo de Deserción{% endblock %} · Apoyo al tutor</title>
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="stylesheet" href="/css/estilos.css">
+</head>
+<body>
+  <div class="bg" aria-hidden="true"><i></i><i></i><i></i></div>
+
+  <header class="top">
+    <div class="wrap">
+      <a class="brand" href="/" aria-label="Inicio">
+        <span class="brand-logo">{{ icono('pulse') }}</span>
+        <span>Riesgo de Deserción<small>Apoyo al tutor · IA</small></span>
+      </a>
+      <nav class="nav-desktop" aria-label="Principal">
+        <a href="/" class="{{ 'activo' if request.endpoint == 'index' }}">Inicio</a>
+        <a href="/predecir" class="{{ 'activo' if request.endpoint == 'predecir' }}">Evaluar estudiante</a>
+        <a href="/modelo" class="{{ 'activo' if request.endpoint == 'modelo' }}">Modelo</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    {% block contenido %}{% endblock %}
+    <footer>
+      <p><strong>Herramienta de apoyo para revisión académica.</strong> No toma decisiones automáticas sobre el estudiante.</p>
+      <p>Modelo entrenado con un dataset <strong>sintético</strong> con comportamiento realista. Curso: Fundamentos y Algoritmia para Inteligencia Artificial.</p>
+    </footer>
+  </main>
+
+  <nav class="tabbar" aria-label="Navegación móvil">
+    <a href="/" class="{{ 'activo' if request.endpoint == 'index' }}">{{ icono('home') }}Inicio</a>
+    <a href="/predecir" class="{{ 'activo' if request.endpoint in ('predecir',) }}">{{ icono('pulse') }}Evaluar</a>
+    <a href="/modelo" class="{{ 'activo' if request.endpoint == 'modelo' }}">{{ icono('model') }}Modelo</a>
+  </nav>
+</body>
+</html>
