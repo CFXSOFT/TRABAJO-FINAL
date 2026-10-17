@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Caso {{ caso.numero }} · {{ caso.titulo }} | SENATI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='estilos.css') }}">
+</head>
+<body>
+  <header class="cabecera">
+    <img src="{{ url_for('static', filename='logo_senati.png') }}" alt="SENATI">
+    <div>
+      <strong>Taller de Machine Learning y Deep Learning</strong>
+      <span>Regresión lineal múltiple · Caso práctico {{ caso.numero }} de 02</span>
+    </div>
+  </header>
+
+  <main>
+    <h1>{{ caso.titulo }}</h1>
+    <p class="contexto">{{ caso.contexto }}</p>
+
+    <!-- ============ FORMULARIO ============ -->
+    <section class="tarjeta">
+      <h2>{{ caso.pregunta }}</h2>
+      <!-- POST envía al servidor lo escrito; #resultado baja la página hasta la respuesta. -->
+      <form method="POST" action="{{ url_for('caso', clave=clave) }}#resultado">
+        {% for campo in caso.campos %}
+          <div class="campo">
+            <label for="{{ campo.nombre }}">
+              {{ campo.etiqueta }}{% if campo.unidad %} ({{ campo.unidad }}){% endif %}
+            </label>
+            {% if campo.tipo == 'numero' %}
+              <input id="{{ campo.nombre }}" name="{{ campo.nombre }}" type="number"
+                     inputmode="decimal" min="{{ campo.min }}" max="{{ campo.max }}"
+                     step="{{ campo.paso }}" required value="{{ escritos[campo.nombre] }}">
+              <small>Rango válido: {{ campo.min }} a {{ campo.max }}{% if campo.unidad %} {{ campo.unidad }}{% endif %}</small>
+            {% else %}
+              <select id="{{ campo.nombre }}" name="{{ campo.nombre }}" required>
+                {% for valor, nombre in campo.opciones %}
+                  <option value="{{ valor }}" {% if escritos[campo.nombre]|string in [valor|string, valor|string ~ '.0'] %}selected{% endif %}>{{ nombre }}</option>
+                {% endfor %}
+              </select>
+            {% endif %}
+          </div>
+        {% endfor %}
+        <button type="submit">Calcular</button>
+      </form>
+
+      <div id="resultado">
+        {% if errores %}
+          <div class="error">
+            {% for e in errores %}<p>{{ e }}</p>{% endfor %}
+          </div>
+        {% elif resultado %}
+          <div class="resultado">
+            <span>Estimación para {{ caso.unidad_objetivo }}</span>
+            <strong>{{ resultado.texto }}</strong>
+            <small>Valor exacto del modelo: {{ resultado.exacto }}</small>
+          </div>
+        {% endif %}
+      </div>
+
+      <p class="aviso">⚠ Es una <strong>estimación</strong> hecha con datos <strong>simulados</strong>. No es una garantía ni una cotización real.</p>
+    </section>
+
+    <!-- ============ PRUEBAS OBLIGATORIAS ============ -->
+    <details class="seccion" open>
+      <summary>Pruebas obligatorias del enunciado</summary>
+      <div class="pruebas">
+        {% for p in pruebas %}
+          <article>
+            <h3>Prueba {{ loop.index }}</h3>
+            <p>{{ p.nombre }}</p>
+            <strong>{{ p.resultado }}</strong>
+            <small>Valor exacto: {{ p.exacto }}</small>
+            <p class="nota">{{ p.sentido }}</p>
+          </article>
+        {% endfor %}
+      </div>
+    </details>
+
+    <!-- ============ MODELO ============ -->
+    <details class="seccion" open>
+      <summary>Cómo funciona el modelo: coeficientes</summary>
+      <p>Ecuación: <em>{{ caso.objetivo }} = intercepto + (coeficiente × valor de cada variable)</em>. Entrenado con {{ modelo.n_entrenamiento }} de {{ modelo.n_total }} filas (80 %).</p>
+      <div class="tabla-scroll">
+        <table>
+          <thead><tr><th>Término</th><th>Valor</th><th>Qué significa</th></tr></thead>
+          <tbody>
+            {% for nombre, valor, texto in coef %}
+              <tr><td>{{ nombre }}</td><td class="num">{{ valor }}</td><td>{{ texto }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </details>
+
+    <details class="seccion" open>
+      <summary>Qué tan bien funciona: MAE y R² (datos de prueba)</summary>
+      <p>Se evaluó con el 20 % que el modelo no vio durante el entrenamiento ({{ modelo.n_prueba }} filas).</p>
+      <div class="metricas">
+        {% for nombre, valor, texto in metricas %}
+          <article>
+            <span>{{ nombre }}</span>
+            <strong>{{ valor }}</strong>
+            <p>{{ texto }}</p>
+          </article>
+        {% endfor %}
+      </div>
+      <h3>Ejemplos reales vs. estimados (datos de prueba)</h3>
+      <div class="tabla-scroll">
+        <table>
+          <thead>
+            <tr>
+              {% for c in modelo.columnas %}<th>{{ c }}</th>{% endfor %}
+              <th>Real</th><th>Estimado</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for fila in modelo.ejemplos_prueba %}
+              <tr>
+                {% for c in modelo.columnas %}<td class="num">{{ '%g'|format(fila[c]) }}</td>{% endfor %}
+                <td class="num">{{ '%g'|format(fila.real) }}</td>
+                <td class="num">{{ '%.1f'|format(fila.predicho) }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </details>
+
+    <!-- ============ DOCUMENTACIÓN ============ -->
+    <details class="seccion" open>
+      <summary>Explicación del trabajo en 10 líneas</summary>
+      <ol>
+        {% for linea in explicacion %}<li>{{ linea }}</li>{% endfor %}
+      </ol>
+    </details>
+
+    <details class="seccion" open>
+      <summary>Conclusiones y límites del modelo</summary>
+      <h3>Conclusiones</h3>
+      <ul>{% for c in conclusiones %}<li>{{ c }}</li>{% endfor %}</ul>
+      <h3>Límites: ¿cuándo puede fallar?</h3>
+      <ul>{% for l in limites %}<li>{{ l }}</li>{% endfor %}</ul>
+    </details>
+
+    <details class="seccion">
+      <summary>Archivos del caso</summary>
+      <ul>
+        <li><a href="{{ url_for('descargar', clave=clave, archivo='datos.csv') }}">datos.csv</a>: {{ modelo.n_total }} registros simulados, {{ modelo.ausentes }} ausentes, {{ modelo.duplicados }} duplicados.</li>
+        <li><a href="{{ url_for('descargar', clave=clave, archivo='modelo.json') }}">modelo.json</a>: intercepto, coeficientes y métricas guardadas por <code>entrenar.py</code>.</li>
+      </ul>
+    </details>
+  </main>
+
+  <footer>Material de taller · SENATI · Datos simulados</footer>
+
+  <!-- Botón fijo abajo a la derecha para cambiar de caso (solo un enlace, sin JavaScript). -->
+  <a class="cambiar" href="{{ url_for('caso', clave=otra_clave) }}"
+     aria-label="Ir al caso {{ otro.numero }}: {{ otro.corto }}">
+    <small>Ir al caso {{ otro.numero }}</small>
+    <span>{{ otro.corto }} →</span>
+  </a>
+</body>
+</html>

@@ -1,0 +1,81 @@
+{
+  "caso": "caso-02",
+  "columnas": [
+    "distancia_km",
+    "carga_kg",
+    "via_no_asfaltada"
+  ],
+  "objetivo": "costo_transporte_soles",
+  "intercepto": 21.51964453823132,
+  "coeficientes": {
+    "distancia_km": 2.7742350957517043,
+    "carga_kg": 0.10728632335623635,
+    "via_no_asfaltada": 26.441864153782838
+  },
+  "mae": 17.793975041858538,
+  "r2": 0.977187305382063,
+  "n_total": 130,
+  "n_entrenamiento": 104,
+  "n_prueba": 26,
+  "ausentes": 0,
+  "duplicados": 0,
+  "media_objetivo": 377.965923076923,
+  "ejemplos_prueba": [
+    {
+      "distancia_km": 160.9,
+      "carga_kg": 1600.0,
+      "via_no_asfaltada": 1.0,
+      "real": 658.75,
+      "predicho": 665.9940529684416
+    },
+    {
+      "distancia_km": 40.3,
+      "carga_kg": 1450.0,
+      "via_no_asfaltada": 1.0,
+      "real": 302.3,
+      "predicho": 315.3283519173505
+    },
+    {
+      "distancia_km": 97.4,
+      "carga_kg": 675.0,
+      "via_no_asfaltada": 1.0,
+      "real": 382.35,
+      "predicho": 390.5902752836897
+    },
+    {
+      "distancia_km": 154.6,
+      "carga_kg": 100.0,
+      "via_no_asfaltada": 0.0,
+      "real": 480.38,
+      "predicho": 461.1450226770684
+    },
+    {
+      "distancia_km": 93.6,
+      "carga_kg": 75.0,
+      "via_no_asfaltada": 1.0,
+      "real": 338.03,
+      "predicho": 315.6763879060914
+    },
+    {
+      "distancia_km": 113.7,
+      "carga_kg": 1125.0,
+      "via_no_asfaltada": 0.0,
+      "real": 491.98,
+      "predicho": 457.647288700966
+    },
+    {
+      "distancia_km": 16.0,
+      "carga_kg": 800.0,
+      "via_no_asfaltada": 0.0,
+      "real": 197.42,
+      "predicho": 151.73646475524765
+    },
+    {
+      "distancia_km": 153.6,
+      "carga_kg": 1475.0,
+      "via_no_asfaltada": 0.0,
+      "real": 590.85,
+      "predicho": 605.8894821961417
+    }
+  ]
+}

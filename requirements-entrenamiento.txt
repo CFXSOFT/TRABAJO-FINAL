@@ -1,0 +1,6 @@
+# Solo para ejecutar entrenar.py y los cuadernos en tu computadora (no hace falta en el hosting).
+Flask==3.0.3
+pandas
+scikit-learn
+matplotlib
+nbformat
